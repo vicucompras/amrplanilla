@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AMR Compras</title>
+<style>
+:root{
+  --bg:#f4f6f8; --card:#fff; --text:#17202a; --muted:#6b7280;
+  --line:#e5e7eb; --primary:#1f4e79; --primary2:#173b5d;
+  --danger:#b42318; --warning:#b54708; --success:#067647; --info:#175cd3;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+header{background:var(--primary);color:white;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:20px;position:sticky;top:0;z-index:10}
+header h1{margin:0;font-size:21px}
+header small{opacity:.8}
+.search{width:min(420px,45vw);padding:10px 13px;border-radius:8px;border:0;font-size:14px}
+.layout{display:flex;min-height:calc(100vh - 66px)}
+nav{width:220px;background:#fff;border-right:1px solid var(--line);padding:14px 10px;flex-shrink:0}
+nav button{width:100%;text-align:left;border:0;background:transparent;padding:11px 13px;border-radius:7px;cursor:pointer;font-size:14px;margin-bottom:3px}
+nav button:hover,nav button.active{background:#eaf1f8;color:var(--primary);font-weight:bold}
+main{padding:24px;max-width:1500px;width:100%;margin:auto}
+.view{display:none}.view.active{display:block}
+h2{margin:0 0 5px;font-size:24px}.subtitle{color:var(--muted);margin-bottom:20px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:17px}
+.card .label{color:var(--muted);font-size:13px}.card .num{font-size:25px;font-weight:bold;margin-top:7px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:10px;padding:18px;margin-bottom:16px}
+.panel h3{margin:0 0 14px;font-size:16px}
+table{width:100%;border-collapse:collapse;background:#fff}
+th,td{padding:10px 9px;border-bottom:1px solid var(--line);text-align:left;font-size:13px;vertical-align:middle}
+th{color:var(--muted);font-weight:600;background:#fafafa}
+tr.clickable{cursor:pointer}.clickable:hover{background:#f8fafc}
+.btn{border:0;border-radius:7px;padding:9px 13px;cursor:pointer;font-weight:600;font-size:13px}
+.btn.primary{background:var(--primary);color:#fff}.btn.primary:hover{background:var(--primary2)}
+.btn.secondary{background:#eef2f6;color:#243447}.btn.danger{background:#fee4e2;color:var(--danger)}
+.btn.small{padding:6px 9px;font-size:12px}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:15px;flex-wrap:wrap}
+.filters{display:flex;gap:8px;flex-wrap:wrap}
+input,select,textarea{width:100%;padding:9px 10px;border:1px solid #cfd5dc;border-radius:7px;background:#fff;font:inherit;font-size:13px}
+textarea{min-height:75px;resize:vertical}
+.formgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:600}
+.field.full{grid-column:1/-1}
+.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+.badge{display:inline-block;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:bold;white-space:nowrap}
+.red{background:#fee4e2;color:#b42318}.yellow{background:#fef0c7;color:#b54708}.green{background:#dcfae6;color:#067647}.blue{background:#e0efff;color:#175cd3}.gray{background:#eef2f6;color:#475467}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;padding:20px;z-index:30}
+.modal.open{display:flex}.modalbox{background:#fff;border-radius:12px;width:min(1000px,96vw);max-height:92vh;overflow:auto;padding:22px}
+.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.modalhead h3{margin:0}
+.itemrow{display:grid;grid-template-columns:2.5fr .8fr .8fr 1fr auto;gap:7px;margin-bottom:7px;align-items:center}
+.empty{padding:25px;text-align:center;color:var(--muted)}
+.alert{padding:10px 12px;border-radius:7px;background:#fff7ed;color:#9a3412;font-size:13px;margin-bottom:12px}
+.detail-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.detail-box{background:#f8fafc;border-radius:8px;padding:12px}.detail-box small{display:block;color:var(--muted)}.detail-box strong{display:block;margin-top:4px}
+.progress{height:8px;background:#e5e7eb;border-radius:99px;overflow:hidden}.progress i{display:block;height:100%;background:#1f7a4d}
+@media(max-width:900px){nav{width:175px}.cards{grid-template-columns:repeat(2,1fr)}.formgrid,.detail-grid{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}}
+@media(max-width:600px){header{position:static;flex-wrap:wrap}.search{width:100%}.layout{display:block}nav{width:100%;display:flex;overflow:auto;border-right:0;border-bottom:1px solid var(--line)}nav button{min-width:max-content}.cards{grid-template-columns:1fr 1fr}main{padding:14px}.formgrid,.detail-grid{grid-template-columns:1fr}.itemrow{grid-template-columns:1fr 70px 70px 100px auto}}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>AMR Compras</h1><small>Control de pedidos, retiros, facturas y pagos</small></div>
+  <input id="globalSearch" class="search" placeholder="🔎 Buscar pedido, proveedor, material, factura...">
+</header>
+
+<div class="layout">
+<nav>
+  <button class="active" data-view="inicio">🏠 Inicio</button>
+  <button data-view="pedidos">📦 Pedidos</button>
+  <button data-view="retiros">🚚 Retiros</button>
+  <button data-view="facturas">🧾 Facturas</button>
+  <button data-view="pagos">💰 Pagos</button>
+  <button data-view="obras">🏗️ Obras</button>
+  <button data-view="proveedores">🏢 Proveedores</button>
+  <hr>
+  <button id="exportBtn">⬇️ Exportar respaldo</button>
+  <button id="importBtn">⬆️ Importar respaldo</button>
+  <input type="file" id="importFile" accept=".json" hidden>
+  <button id="clearBtn" class="danger">🗑️ Borrar datos</button>
+</nav>
+
+<main>
+<section id="inicio" class="view active">
+  <h2>Inicio</h2><div class="subtitle">Resumen general de compras</div>
+  <div class="cards">
+    <div class="card"><div class="label">Pedidos abiertos</div><div class="num" id="kpiPedidos">0</div></div>
+    <div class="card"><div class="label">Ítems para retirar</div><div class="num" id="kpiRetiros">0</div></div>
+    <div class="card"><div class="label">Facturas pendientes</div><div class="num" id="kpiFacturas">0</div></div>
+    <div class="card"><div class="label">Pagos pendientes</div><div class="num" id="kpiPagos">0</div></div>
+  </div>
+  <div class="grid2">
+    <div class="panel"><h3>Resumen del mes</h3><div id="monthlySummary"></div></div>
+    <div class="panel"><h3>Pendientes importantes</h3><div id="homePending"></div></div>
+  </div>
+  <div class="panel"><h3>Últimos pedidos</h3><div id="homeOrders"></div></div>
+</section>
+
+<section id="pedidos" class="view">
+  <div class="toolbar"><div><h2>Pedidos</h2><div class="subtitle">Pedidos y materiales comprados</div></div><button class="btn primary" onclick="newOrder()">+ Nuevo pedido</button></div>
+  <div class="panel"><div class="filters"><select id="orderObraFilter"></select><select id="orderProviderFilter"></select><select id="orderStatusFilter"><option value="">Todos los estados</option><option>Pendiente de aprobación</option><option>Pedido realizado</option><option>Parcialmente retirado</option><option>Retirado</option><option>Cancelado</option></select></div></div>
+  <div class="panel" id="ordersTable"></div>
+</section>
+
+<section id="retiros" class="view">
+  <div class="toolbar"><div><h2>Retiros</h2><div class="subtitle">Control de retiros parciales y pendientes</div></div></div>
+  <div class="panel" id="withdrawalsTable"></div>
+</section>
+
+<section id="facturas" class="view">
+  <div class="toolbar"><div><h2>Facturas</h2><div class="subtitle">Facturas vinculadas a pedidos</div></div><button class="btn primary" onclick="newInvoice()">+ Nueva factura</button></div>
+  <div class="panel" id="invoicesTable"></div>
+</section>
+
+<section id="pagos" class="view">
+  <div class="toolbar"><div><h2>Pagos</h2><div class="subtitle">Pagos vinculados a facturas</div></div><button class="btn primary" onclick="newPayment()">+ Nuevo pago</button></div>
+  <div class="panel" id="paymentsTable"></div>
+</section>
+
+<section id="obras" class="view">
+  <div class="toolbar"><div><h2>Obras</h2><div class="subtitle">Resumen de compras por obra</div></div><button class="btn primary" onclick="newMaster('obra')">+ Nueva obra</button></div>
+  <div class="panel" id="worksTable"></div>
+</section>
+
+<section id="proveedores" class="view">
+  <div class="toolbar"><div><h2>Proveedores</h2><div class="subtitle">Resumen de compras por proveedor</div></div><button class="btn primary" onclick="newMaster('proveedor')">+ Nuevo proveedor</button></div>
+  <div class="panel" id="providersTable"></div>
+</section>
+</main>
+</div>
+
+<div class="modal" id="modal"><div class="modalbox" id="modalContent"></div></div>
+
+<script>
+const KEY='amr_compras_v1';
+let db=JSON.parse(localStorage.getItem(KEY)||'null')||{
+  obras:['UP8','UP13 PECAM','UP13 Mundo','Centro Acuático','003 Yoana'],
+  proveedores:['Serra','Boggio','Pasco','Argelec','El Almacén','Maintec','Cufer','Wentink','Relet'],
+  pedidos:[], retiros:[], facturas:[], pagos:[]
+};
+function save(){localStorage.setItem(KEY,JSON.stringify(db));renderAll()}
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function money(n){return new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',maximumFractionDigits:0}).format(Number(n)||0)}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function badge(s){
+ let c=s?.includes('Retirado')||s==='Pagado'?'green':s?.includes('Parcial')||s?.includes('realizado')||s==='Factura pendiente'?'yellow':s?.includes('aprobación')||s==='Pendiente'||s==='Sin factura'?'red':'blue';
+ return `<span class="badge ${c}">${esc(s||'')}</span>`;
+}
+function show(view){
+ document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+ document.getElementById(view).classList.add('active');
+ document.querySelectorAll('nav button[data-view]').forEach(x=>x.classList.toggle('active',x.dataset.view===view));
+ renderAll();
+}
+document.querySelectorAll('nav button[data-view]').forEach(b=>b.onclick=()=>show(b.dataset.view));
+document.getElementById('globalSearch').oninput=e=>globalSearch(e.target.value);
+
+function fillSelect(id,arr,placeholder='Todos'){
+ const el=document.getElementById(id); if(!el)return;
+ const val=el.value; el.innerHTML=`<option value="">${placeholder}</option>`+arr.map(x=>`<option>${esc(x)}</option>`).join('');
+ if(arr.includes(val))el.value=val;
+}
+function renderAll(){
+ fillSelect('orderObraFilter',db.obras); fillSelect('orderProviderFilter',db.proveedores);
+ renderHome(); renderOrders(); renderWithdrawals(); renderInvoices(); renderPayments(); renderWorks(); renderProviders();
+}
+function renderHome(){
+ const open=db.pedidos.filter(p=>p.estado!=='Retirado'&&p.estado!=='Cancelado').length;
+ const pendingRet=db.pedidos.reduce((a,p)=>a+p.items.filter(i=>Number(i.cantidad)>retiredFor(p.id,i.id)).length,0);
+ const pendingInv=db.pedidos.filter(p=>!db.facturas.some(f=>f.pedidoId===p.id)).length;
+ const pendingPay=db.facturas.filter(f=>!isInvoicePaid(f.id)).length;
+ document.getElementById('kpiPedidos').textContent=open;
+ document.getElementById('kpiRetiros').textContent=pendingRet;
+ document.getElementById('kpiFacturas').textContent=pendingInv;
+ document.getElementById('kpiPagos').textContent=pendingPay;
+ const month=new Date().toISOString().slice(0,7);
+ const bought=db.pedidos.filter(p=>(p.fecha||'').slice(0,7)===month).reduce((a,p)=>a+Number(p.total||0),0);
+ const inv=db.facturas.filter(f=>(f.fecha||'').slice(0,7)===month).reduce((a,f)=>a+Number(f.importe||0),0);
+ const paid=db.pagos.filter(x=>(x.fecha||'').slice(0,7)===month).reduce((a,x)=>a+Number(x.importe||0),0);
+ document.getElementById('monthlySummary').innerHTML=`<div class="detail-grid">
+ <div class="detail-box"><small>Comprado</small><strong>${money(bought)}</strong></div>
+ <div class="detail-box"><small>Facturado</small><strong>${money(inv)}</strong></div>
+ <div class="detail-box"><small>Pagado</small><strong>${money(paid)}</strong></div>
+ <div class="detail-box"><small>Saldo facturado</small><strong>${money(inv-paid)}</strong></div></div>`;
+ let pending=[];
+ db.pedidos.filter(p=>p.estado==='Pendiente de aprobación').forEach(p=>pending.push(`${badge('Pendiente')} ${esc(p.proveedor)} — ${esc(p.obra)} — Pedido ${esc(p.numero)}`));
+ db.pedidos.forEach(p=>p.items.forEach(i=>{let r=retiredFor(p.id,i.id);if(r<Number(i.cantidad))pending.push(`${badge('Para retirar')} ${esc(p.proveedor)} — ${esc(i.material)}: ${Number(i.cantidad)-r} ${esc(i.unidad)}`)}));
+ db.facturas.filter(f=>!isInvoicePaid(f.id)).forEach(f=>pending.push(`${badge('Pago pendiente')} ${esc(f.proveedor)} — ${esc(f.numero)} — ${money(f.importe)}`));
+ document.getElementById('homePending').innerHTML=pending.slice(0,8).map(x=>`<div style="padding:7px 0;border-bottom:1px solid var(--line)">${x}</div>`).join('')||'<div class="empty">No hay pendientes.</div>';
+ document.getElementById('homeOrders').innerHTML=ordersTable(db.pedidos.slice().reverse().slice(0,8));
+}
+function retiredFor(pid,iid){return db.retiros.filter(r=>r.pedidoId===pid&&r.itemId===iid).reduce((a,r)=>a+Number(r.cantidad||0),0)}
+function ordersTable(list){
+ if(!list.length)return '<div class="empty">No hay pedidos cargados.</div>';
+ return `<table><thead><tr><th>Pedido</th><th>Fecha</th><th>Obra</th><th>Proveedor</th><th>Total</th><th>Retiro</th><th>Factura</th><th>Estado</th></tr></thead><tbody>`+
+ list.map(p=>{
+  const totalItems=p.items.reduce((a,i)=>a+Number(i.cantidad),0), retired=p.items.reduce((a,i)=>a+Math.min(Number(i.cantidad),retiredFor(p.id,i.id)),0);
+  const ret=totalItems?Math.round(retired/totalItems*100):0;
+  const fact=db.facturas.some(f=>f.pedidoId===p.id);
+  return `<tr class="clickable" onclick="editOrder('${p.id}')"><td><b>${esc(p.numero)}</b></td><td>${esc(p.fecha)}</td><td>${esc(p.obra)}</td><td>${esc(p.proveedor)}</td><td>${money(p.total)}</td><td>${ret}%</td><td>${fact?badge('Facturada'):badge('Sin factura')}</td><td>${badge(p.estado)}</td></tr>`
+ }).join('')+'</tbody></table>';
+}
+function renderOrders(){
+ let list=db.pedidos;
+ const o=document.getElementById('orderObraFilter')?.value,p=document.getElementById('orderProviderFilter')?.value,s=document.getElementById('orderStatusFilter')?.value;
+ if(o)list=list.filter(x=>x.obra===o);if(p)list=list.filter(x=>x.proveedor===p);if(s)list=list.filter(x=>x.estado===s);
+ document.getElementById('ordersTable').innerHTML=ordersTable(list);
+ ['orderObraFilter','orderProviderFilter','orderStatusFilter'].forEach(id=>{let e=document.getElementById(id);if(e)e.onchange=renderOrders});
+}
+function renderWithdrawals(){
+ let rows=[];
+ db.pedidos.forEach(p=>p.items.forEach(i=>{
+  const r=retiredFor(p.id,i.id), pend=Number(i.cantidad)-r;
+  rows.push(`<tr><td>${esc(p.obra)}</td><td>${esc(p.proveedor)}</td><td>${esc(p.numero)}</td><td>${esc(i.material)}</td><td>${i.cantidad} ${esc(i.unidad)}</td><td>${r} ${esc(i.unidad)}</td><td><b>${Math.max(0,pend)} ${esc(i.unidad)}</b></td><td>${pend>0?`<button class="btn small primary" onclick="newWithdrawal('${p.id}','${i.id}')">+ Retiro</button>`:badge('Completo')}</td></tr>`)
+ }));
+ document.getElementById('withdrawalsTable').innerHTML=rows.length?`<table><thead><tr><th>Obra</th><th>Proveedor</th><th>Pedido</th><th>Material</th><th>Pedido</th><th>Retirado</th><th>Pendiente</th><th></th></tr></thead><tbody>${rows.join('')}</tbody></table>`:'<div class="empty">No hay materiales.</div>';
+}
+function renderInvoices(){
+ if(!db.facturas.length){document.getElementById('invoicesTable').innerHTML='<div class="empty">No hay facturas cargadas.</div>';return}
+ document.getElementById('invoicesTable').innerHTML=`<table><thead><tr><th>Fecha</th><th>Proveedor</th><th>Obra</th><th>Factura</th><th>Pedido</th><th>Importe</th><th>Estado</th><th></th></tr></thead><tbody>`+
+ db.facturas.map(f=>`<tr><td>${esc(f.fecha)}</td><td>${esc(f.proveedor)}</td><td>${esc(f.obra)}</td><td><b>${esc(f.numero)}</b></td><td>${esc(f.pedidoNumero||'')}</td><td>${money(f.importe)}</td><td>${badge(isInvoicePaid(f.id)?'Pagado':'Pendiente')}</td><td><button class="btn small secondary" onclick="editInvoice('${f.id}')">Editar</button></td></tr>`).join('')+'</tbody></table>';
+}
+function isInvoicePaid(fid){const f=db.facturas.find(x=>x.id===fid);const p=db.pagos.filter(x=>x.facturaId===fid).reduce((a,x)=>a+Number(x.importe||0),0);return p>=Number(f?.importe||0)}
+function renderPayments(){
+ if(!db.pagos.length){document.getElementById('paymentsTable').innerHTML='<div class="empty">No hay pagos cargados.</div>';return}
+ document.getElementById('paymentsTable').innerHTML=`<table><thead><tr><th>Fecha</th><th>Proveedor</th><th>Factura</th><th>Importe</th><th>Forma</th><th>Condición</th></tr></thead><tbody>`+
+ db.pagos.map(x=>`<tr><td>${esc(x.fecha)}</td><td>${esc(x.proveedor)}</td><td>${esc(x.facturaNumero)}</td><td>${money(x.importe)}</td><td>${esc(x.forma)}</td><td>${esc(x.condicion||'')}</td></tr>`).join('')+'</tbody></table>';
+}
+function renderWorks(){
+ document.getElementById('worksTable').innerHTML=`<table><thead><tr><th>Obra</th><th>Pedidos</th><th>Comprado</th><th>Facturado</th><th>Pagado</th><th>Pendiente pago</th></tr></thead><tbody>`+
+ db.obras.map(o=>{let ps=db.pedidos.filter(p=>p.obra===o), fs=db.facturas.filter(f=>f.obra===o), pa=db.pagos.filter(x=>x.obra===o);let a=ps.reduce((s,x)=>s+Number(x.total||0),0),b=fs.reduce((s,x)=>s+Number(x.importe||0),0),c=pa.reduce((s,x)=>s+Number(x.importe||0),0);return `<tr><td><b>${esc(o)}</b></td><td>${ps.length}</td><td>${money(a)}</td><td>${money(b)}</td><td>${money(c)}</td><td>${money(b-c)}</td></tr>`}).join('')+'</tbody></table>';
+}
+function renderProviders(){
+ document.getElementById('providersTable').innerHTML=`<table><thead><tr><th>Proveedor</th><th>Pedidos</th><th>Comprado</th><th>Facturado</th><th>Pagado</th><th>Pendiente</th></tr></thead><tbody>`+
+ db.proveedores.map(o=>{let ps=db.pedidos.filter(p=>p.proveedor===o), fs=db.facturas.filter(f=>f.proveedor===o), pa=db.pagos.filter(x=>x.proveedor===o);let a=ps.reduce((s,x)=>s+Number(x.total||0),0),b=fs.reduce((s,x)=>s+Number(x.importe||0),0),c=pa.reduce((s,x)=>s+Number(x.importe||0),0);return `<tr><td><b>${esc(o)}</b></td><td>${ps.length}</td><td>${money(a)}</td><td>${money(b)}</td><td>${money(c)}</td><td>${money(b-c)}</td></tr>`}).join('')+'</tbody></table>';
+}
+function openModal(content){document.getElementById('modalContent').innerHTML=content;document.getElementById('modal').classList.add('open')}
+function closeModal(){document.getElementById('modal').classList.remove('open')}
+document.getElementById('modal').onclick=e=>{if(e.target.id==='modal')closeModal()}
+
+function orderForm(p={}){
+ const items=p.items||[{id:uid(),material:'',cantidad:'',unidad:'u',precio:''}];
+ openModal(`<div class="modalhead"><h3>${p.id?'Editar':'Nuevo'} pedido</h3><button class="btn secondary" onclick="closeModal()">✕</button></div>
+ <div class="formgrid">
+ <div class="field"><label>Obra</label><select id="fObra">${db.obras.map(x=>`<option ${x===p.obra?'selected':''}>${esc(x)}</option>`).join('')}</select></div>
+ <div class="field"><label>Proveedor</label><select id="fProv">${db.proveedores.map(x=>`<option ${x===p.proveedor?'selected':''}>${esc(x)}</option>`).join('')}</select></div>
+ <div class="field"><label>Nº pedido</label><input id="fNum" value="${esc(p.numero||'')}"></div>
+ <div class="field"><label>Fecha</label><input type="date" id="fFecha" value="${esc(p.fecha||new Date().toISOString().slice(0,10))}"></div>
+ <div class="field"><label>Estado</label><select id="fEstado">${['Pendiente de aprobación','Pedido realizado','Parcialmente retirado','Retirado','Cancelado'].map(x=>`<option ${x===(p.estado||'Pendiente de aprobación')?'selected':''}>${x}</option>`).join('')}</select></div>
+ <div class="field full"><label>Observaciones</label><textarea id="fObs">${esc(p.obs||'')}</textarea></div>
+ </div>
+ <h3 style="margin-top:20px">Materiales</h3><div id="items">${items.map(itemRow).join('')}</div>
+ <button class="btn secondary" onclick="addItemRow()">+ Agregar material</button>
+ <div class="actions"><button class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveOrder('${p.id||''}')">Guardar pedido</button></div>`);
+}
+function itemRow(i){return `<div class="itemrow" data-item="${esc(i.id)}"><input class="imaterial" placeholder="Material" value="${esc(i.material)}"><input class="icantidad" type="number" step="any" placeholder="Cant." value="${esc(i.cantidad)}"><input class="iunidad" placeholder="Un." value="${esc(i.unidad||'u')}"><input class="iprecio" type="number" step="any" placeholder="Precio unit." value="${esc(i.precio||'')}"><button class="btn small danger" onclick="this.parentElement.remove()">×</button></div>`}
+function addItemRow(){document.getElementById('items').insertAdjacentHTML('beforeend',itemRow({id:uid(),unidad:'u'}))}
+function newOrder(){orderForm()}
+function editOrder(id){orderForm(db.pedidos.find(x=>x.id===id))}
+function saveOrder(id){
+ const rows=[...document.querySelectorAll('#items .itemrow')];
+ const items=rows.map(r=>({id:r.dataset.item||uid(),material:r.querySelector('.imaterial').value.trim(),cantidad:Number(r.querySelector('.icantidad').value)||0,unidad:r.querySelector('.iunidad').value.trim()||'u',precio:Number(r.querySelector('.iprecio').value)||0})).filter(x=>x.material&&x.cantidad>0);
+ const obj={id:id||uid(),obra:fObra.value,proveedor:fProv.value,numero:fNum.value.trim()||'Sin número',fecha:fFecha.value,estado:fEstado.value,obs:fObs.value.trim(),items,total:items.reduce((a,i)=>a+i.cantidad*i.precio,0)};
+ if(id){const idx=db.pedidos.findIndex(x=>x.id===id);db.pedidos[idx]=obj}else db.pedidos.push(obj);
+ save();closeModal();
+}
+function newWithdrawal(pid,iid){
+ const p=db.pedidos.find(x=>x.id===pid), i=p.items.find(x=>x.id===iid), max=Number(i.cantidad)-retiredFor(pid,iid);
+ openModal(`<div class="modalhead"><h3>Registrar retiro</h3><button class="btn secondary" onclick="closeModal()">✕</button></div>
+ <div class="alert">${esc(p.proveedor)} — Pedido ${esc(p.numero)} — ${esc(i.material)}. Pendiente: <b>${max} ${esc(i.unidad)}</b></div>
+ <div class="formgrid"><div class="field"><label>Fecha</label><input id="rFecha" type="date" value="${new Date().toISOString().slice(0,10)}"></div><div class="field"><label>Cantidad retirada</label><input id="rCant" type="number" step="any" max="${max}" value="${max}"></div><div class="field"><label>Observación</label><input id="rObs"></div></div>
+ <div class="actions"><button class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveWithdrawal('${pid}','${iid}',${max})">Registrar retiro</button></div>`);
+}
+function saveWithdrawal(pid,iid,max){let q=Number(rCant.value);if(q<=0||q>max){alert('La cantidad debe ser mayor a 0 y no superar el pendiente.');return}db.retiros.push({id:uid(),pedidoId:pid,itemId:iid,fecha:rFecha.value,cantidad:q,obs:rObs.value});updateOrderStatus(pid);save();closeModal()}
+function updateOrderStatus(pid){const p=db.pedidos.find(x=>x.id===pid);if(!p)return;let total=p.items.reduce((a,i)=>a+Number(i.cantidad),0),r=p.items.reduce((a,i)=>a+Math.min(Number(i.cantidad),retiredFor(pid,i.id)),0);if(total&&r>=total)p.estado='Retirado';else if(r>0&&p.estado!=='Cancelado')p.estado='Parcialmente retirado'}
+
+function newInvoice(){invoiceForm()}
+function editInvoice(id){invoiceForm(db.facturas.find(x=>x.id===id))}
+function invoiceForm(f={}){
+ openModal(`<div class="modalhead"><h3>${f.id?'Editar':'Nueva'} factura</h3><button class="btn secondary" onclick="closeModal()">✕</button></div>
+ <div class="formgrid">
+ <div class="field"><label>Pedido</label><select id="invPedido" onchange="syncInvoiceOrder()"><option value="">Seleccionar</option>${db.pedidos.map(p=>`<option value="${p.id}" ${p.id===f.pedidoId?'selected':''}>${esc(p.numero)} — ${esc(p.obra)} — ${esc(p.proveedor)}</option>`).join('')}</select></div>
+ <div class="field"><label>Proveedor</label><input id="invProv" value="${esc(f.proveedor||'')}" readonly></div>
+ <div class="field"><label>Obra</label><input id="invObra" value="${esc(f.obra||'')}" readonly></div>
+ <div class="field"><label>Número factura</label><input id="invNum" value="${esc(f.numero||'')}"></div>
+ <div class="field"><label>Fecha emisión</label><input id="invFecha" type="date" value="${esc(f.fecha||new Date().toISOString().slice(0,10))}"></div>
+ <div class="field"><label>Vencimiento</label><input id="invVto" type="date" value="${esc(f.vencimiento||'')}"></div>
+ <div class="field"><label>Importe</label><input id="invImporte" type="number" step="any" value="${esc(f.importe||'')}"></div>
+ <div class="field full"><label>Observación</label><textarea id="invObs">${esc(f.obs||'')}</textarea></div>
+ </div>
+ <div class="actions"><button class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveInvoice('${f.id||''}')">Guardar factura</button></div>`);
+ if(f.pedidoId)syncInvoiceOrder();
+}
+function syncInvoiceOrder(){const p=db.pedidos.find(x=>x.id===invPedido.value);if(p){invProv.value=p.proveedor;invObra.value=p.obra;if(!invImporte.value)invImporte.value=p.total}}
+function saveInvoice(id){
+ const p=db.pedidos.find(x=>x.id===invPedido.value);if(!p){alert('Seleccioná un pedido.');return}
+ const o={id:id||uid(),pedidoId:p.id,pedidoNumero:p.numero,proveedor:invProv.value,obra:invObra.value,numero:invNum.value.trim(),fecha:invFecha.value,vencimiento:invVto.value,importe:Number(invImporte.value)||0,obs:invObs.value};
+ if(id)db.facturas[db.facturas.findIndex(x=>x.id===id)]=o;else db.facturas.push(o);save();closeModal();
+}
+
+function newPayment(){
+ if(!db.facturas.length){alert('Primero cargá una factura.');return}
+ openModal(`<div class="modalhead"><h3>Nuevo pago</h3><button class="btn secondary" onclick="closeModal()">✕</button></div>
+ <div class="formgrid">
+ <div class="field full"><label>Factura</label><select id="payFact" onchange="syncPayment()"><option value="">Seleccionar</option>${db.facturas.map(f=>`<option value="${f.id}">${esc(f.numero)} — ${esc(f.proveedor)} — ${money(f.importe)}</option>`).join('')}</select></div>
+ <div class="field"><label>Proveedor</label><input id="payProv" readonly></div><div class="field"><label>Obra</label><input id="payObra" readonly></div>
+ <div class="field"><label>Fecha</label><input id="payFecha" type="date" value="${new Date().toISOString().slice(0,10)}"></div>
+ <div class="field"><label>Importe</label><input id="payImporte" type="number" step="any"></div>
+ <div class="field"><label>Forma de pago</label><select id="payForma"><option>eCheq</option><option>Transferencia</option><option>Efectivo</option><option>Otro</option></select></div>
+ <div class="field"><label>Condición</label><input id="payCond" placeholder="30 / 60 / 90"></div>
+ </div><div class="actions"><button class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="savePayment()">Guardar pago</button></div>`);
+}
+function syncPayment(){const f=db.facturas.find(x=>x.id===payFact.value);if(f){payProv.value=f.proveedor;payObra.value=f.obra;let paid=db.pagos.filter(x=>x.facturaId===f.id).reduce((a,x)=>a+Number(x.importe),0);payImporte.value=Math.max(0,Number(f.importe)-paid)}}
+function savePayment(){const f=db.facturas.find(x=>x.id===payFact.value);if(!f){alert('Seleccioná una factura.');return}db.pagos.push({id:uid(),facturaId:f.id,facturaNumero:f.numero,proveedor:f.proveedor,obra:f.obra,fecha:payFecha.value,importe:Number(payImporte.value)||0,forma:payForma.value,condicion:payCond.value});save();closeModal()}
+
+function newMaster(type){
+ const title=type==='obra'?'Nueva obra':'Nuevo proveedor';
+ openModal(`<div class="modalhead"><h3>${title}</h3><button class="btn secondary" onclick="closeModal()">✕</button></div><div class="field"><label>Nombre</label><input id="masterName"></div><div class="actions"><button class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="saveMaster('${type}')">Guardar</button></div>`);
+}
+function saveMaster(type){const n=masterName.value.trim();if(!n)return;if(type==='obra'&&!db.obras.includes(n))db.obras.push(n);if(type==='proveedor'&&!db.proveedores.includes(n))db.proveedores.push(n);save();closeModal()}
+
+function globalSearch(q){
+ q=q.trim().toLowerCase();if(!q)return;
+ const matches=[];
+ db.pedidos.forEach(p=>{if(JSON.stringify(p).toLowerCase().includes(q))matches.push({t:'Pedido',id:p.id,label:`Pedido ${p.numero} — ${p.obra} — ${p.proveedor}`})});
+ db.facturas.forEach(f=>{if(JSON.stringify(f).toLowerCase().includes(q))matches.push({t:'Factura',id:f.id,label:`Factura ${f.numero} — ${f.proveedor}`})});
+ if(matches.length){show('pedidos');document.getElementById('ordersTable').innerHTML='<div class="panel"><h3>Resultados de búsqueda</h3>'+matches.slice(0,30).map(m=>`<div style="padding:9px;border-bottom:1px solid var(--line);cursor:pointer" onclick="${m.t==='Pedido'?`editOrder('${m.id}')`:`editInvoice('${m.id}')`}"><b>${m.t}</b> — ${esc(m.label)}</div>`).join('')+'</div>'}
+}
+
+document.getElementById('exportBtn').onclick=()=>{
+ const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);a.download='AMR_Compras_respaldo_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href);
+};
+document.getElementById('importBtn').onclick=()=>document.getElementById('importFile').click();
+document.getElementById('importFile').onchange=e=>{
+ const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result);if(!x.pedidos||!x.obras)throw 0;db=x;save();alert('Respaldo importado correctamente.')}catch{alert('El archivo no parece ser un respaldo válido.')}};r.readAsText(file)
+};
+document.getElementById('clearBtn').onclick=()=>{if(confirm('Esto borrará todos los datos guardados en este navegador. ¿Continuar?')){localStorage.removeItem(KEY);location.reload()}};
+renderAll();
+</script>
+</body>
+</html>
